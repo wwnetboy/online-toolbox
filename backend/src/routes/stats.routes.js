@@ -160,4 +160,18 @@ router.post('/click', recordClickValidator, validate, StatsController.recordClic
  */
 router.get('/total-usage', StatsController.getTotalUsage);
 
+/**
+ * @route   GET /api/stats/visit-trend
+ * @desc    Get monthly visit trend for current year
+ * @access  Private
+ */
+router.get('/visit-trend', authenticate, StatsController.getVisitTrend);
+
+/**
+ * @route   GET /api/stats/user-overview
+ * @desc    Get user overview stats
+ * @access  Private
+ */
+router.get('/user-overview', authenticate, StatsController.getUserOverview);
+
 module.exports = router;

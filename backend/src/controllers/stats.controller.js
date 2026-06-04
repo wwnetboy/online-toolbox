@@ -169,6 +169,40 @@ class StatsController {
   }
 
   /**
+   * Get monthly visit trend for current year
+   * GET /api/stats/visit-trend
+   */
+  static async getVisitTrend(req, res) {
+    try {
+      const result = await StatsService.getVisitTrend();
+      if (!result.success) {
+        return error(res, ErrorCodes.INTERNAL_ERROR, result.message);
+      }
+      return success(res, result.data, '获取访问趋势成功');
+    } catch (err) {
+      logger.error('Get visit trend error:', err);
+      return error(res, ErrorCodes.INTERNAL_ERROR, '获取访问趋势失败');
+    }
+  }
+
+  /**
+   * Get user overview stats
+   * GET /api/stats/user-overview
+   */
+  static async getUserOverview(req, res) {
+    try {
+      const result = await StatsService.getUserOverview();
+      if (!result.success) {
+        return error(res, ErrorCodes.INTERNAL_ERROR, result.message);
+      }
+      return success(res, result.data, '获取用户概述成功');
+    } catch (err) {
+      logger.error('Get user overview error:', err);
+      return error(res, ErrorCodes.INTERNAL_ERROR, '获取用户概述失败');
+    }
+  }
+
+  /**
    * Get total usage count
    * GET /api/stats/total-usage
    */

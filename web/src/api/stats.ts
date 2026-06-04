@@ -407,6 +407,50 @@ export function fetchOnlineVisitors(): Promise<StatItem> {
   return statsApiService.fetchOnlineVisitors()
 }
 
+/**
+ * 获取年度月度访问趋势
+ *
+ * @returns 月度访问数据和增长率
+ */
+export async function fetchVisitTrend(): Promise<{
+  data: number[]
+  xAxisData: string[]
+  totalThisYear: number
+  growth: number
+}> {
+  const { default: request } = await import('@/utils/http')
+  return request.get<{
+    data: number[]
+    xAxisData: string[]
+    totalThisYear: number
+    growth: number
+  }>({ url: '/stats/visit-trend' })
+}
+
+/**
+ * 获取用户概述数据
+ *
+ * @returns 用户概述统计和图表数据
+ */
+export async function fetchUserOverview(): Promise<{
+  chartData: number[]
+  xAxisLabels: string[]
+  totalUsers: number
+  totalVisits: number
+  dailyVisits: number
+  weekTrend: number
+}> {
+  const { default: request } = await import('@/utils/http')
+  return request.get<{
+    chartData: number[]
+    xAxisLabels: string[]
+    totalUsers: number
+    totalVisits: number
+    dailyVisits: number
+    weekTrend: number
+  }>({ url: '/stats/user-overview' })
+}
+
 // 导出类型和常量供测试使用
 export { DEFAULT_STATS, DEFAULT_STAT_ITEM, CACHE_KEYS }
 

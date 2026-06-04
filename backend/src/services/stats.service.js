@@ -383,6 +383,128 @@ class StatsService {
   }
 
   /**
+   * Get monthly visit trend for the current year
+   * @returns {Promise<Object>} Monthly visit data and growth info
+   */
+  static async getVisitTrend() {
+    const now = new Date();
+    const currentYear = now.getFullYear();
+
+    // Monthly visits for current year (use raw SQL to avoid field mapping issues)
+    const [monthlyVisits] = await sequelize.query(
+      `SELECT MONTH(created_at) AS \`month\`, COUNT(*) AS \`count\`
+       FROM visits
+       WHERE created_at BETWEEN ? AND ?
+       GROUP BY MONTH(created_at)
+       ORDER BY MONTH(created_at) ASC`,
+      {
+        replacements: [
+          new Date(currentYear, 0, 1),
+          new Date(currentYear, 11, 31, 23, 59, 59, 999),
+        ],
+      }
+    );
+
+    // Build 12-month array
+    const data = Array(12).fill(0);
+    monthlyVisits.forEach((row) => {
+      data[row.month - 1] = parseInt(row.count, 10);
+    });
+
+    // Calculate year-over-year growth
+    const [lastYearResult] = await sequelize.query(
+      `SELECT COUNT(*) AS \`count\` FROM visits WHERE created_at BETWEEN ? AND ?`,
+      {
+        replacements: [
+          new Date(currentYear - 1, 0, 1),
+          new Date(currentYear - 1, 11, 31, 23, 59, 59, 999),
+        ],
+      }
+    );
+    const lastYearTotal = parseInt(lastYearResult[0].count, 10);
+
+    const currentYearTotal = data.reduce((sum, v) => sum + v, 0);
+    const growth = this.calculateTrend(currentYearTotal, lastYearTotal);
+
+    return {
+      success: true,
+      data: {
+        data,
+        xAxisData: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
+        totalThisYear: currentYearTotal,
+        growth,
+      },
+    };
+  }
+
+  /**
+   * Get user overview stats for bar chart
+   * @returns {Promise<Object>} User overview data with monthly stats and summary
+   */
+  static async getUserOverview() {
+    const now = new Date();
+    const currentYear = now.getFullYear();
+
+    // Monthly active users (unique visitors) for last 9 months
+    const nineMonthsAgo = new Date(currentYear, now.getMonth() - 8, 1);
+    const [monthlyActiveUsers] = await sequelize.query(
+      `SELECT DATE_FORMAT(created_at, '%Y-%m') AS \`month\`, COUNT(DISTINCT visitor_id) AS \`count\`
+       FROM visits
+       WHERE created_at >= ?
+       GROUP BY DATE_FORMAT(created_at, '%Y-%m')
+       ORDER BY DATE_FORMAT(created_at, '%Y-%m') ASC`,
+      { replacements: [nineMonthsAgo] }
+    );
+
+    // Build last 9 months labels and data
+    const labels = [];
+    const chartData = [];
+    for (let i = 8; i >= 0; i--) {
+      const d = new Date(currentYear, now.getMonth() - i, 1);
+      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+      labels.push(`${d.getMonth() + 1}月`);
+      const found = monthlyActiveUsers.find((row) => row.month === key);
+      chartData.push(found ? parseInt(found.count, 10) : 0);
+    }
+
+    // Summary stats
+    const totalUsers = await User.count({ where: { deletedAt: null } });
+    const totalVisits = await Visit.count();
+
+    // Today's visits
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const dailyVisits = await Visit.count({
+      where: { createdAt: { [Op.gte]: todayStart } },
+    });
+
+    // Week-over-week trend
+    const weekStart = new Date(todayStart);
+    weekStart.setDate(weekStart.getDate() - (now.getDay() || 7) + 1);
+    const prevWeekStart = new Date(weekStart);
+    prevWeekStart.setDate(prevWeekStart.getDate() - 7);
+    const prevWeekEnd = new Date(weekStart);
+    prevWeekEnd.setMilliseconds(-1);
+
+    const [thisWeekVisits, lastWeekVisits] = await Promise.all([
+      Visit.count({ where: { createdAt: { [Op.between]: [weekStart, now] } } }),
+      Visit.count({ where: { createdAt: { [Op.between]: [prevWeekStart, prevWeekEnd] } } }),
+    ]);
+    const weekTrend = this.calculateTrend(thisWeekVisits, lastWeekVisits);
+
+    return {
+      success: true,
+      data: {
+        chartData,
+        xAxisLabels: labels,
+        totalUsers,
+        totalVisits,
+        dailyVisits,
+        weekTrend,
+      },
+    };
+  }
+
+  /**
    * Get total usage count (all time)
    * @returns {Promise<number>} Total usage count
    */
