@@ -1,0 +1,6 @@
+# 忽略所有 ONNX 模型文件（文件较大，不应提交到 Git）
+*.onnx
+
+# 但保留 README 文件
+!README.md
+!.gitignore

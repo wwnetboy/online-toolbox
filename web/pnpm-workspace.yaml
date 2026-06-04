@@ -1,0 +1,8 @@
+allowBuilds:
+  '@parcel/watcher': true
+  '@tailwindcss/oxide': true
+  core-js: true
+  es5-ext: true
+  esbuild: true
+  protobufjs: true
+  vue-demi: true

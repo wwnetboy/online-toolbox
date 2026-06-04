@@ -1,0 +1,255 @@
+/**
+ * 工具页面通用样式
+ * 所有工具页面共享的样式，避免重复定义
+ */
+
+/* ==================== 上传区域 ==================== */
+.upload-area {
+  min-height: 200px;
+  padding: 60px 20px;
+  text-align: center;
+  border: 2px dashed var(--el-border-color);
+  border-radius: var(--custom-radius);
+  transition: all 0.3s;
+
+  &:hover,
+  &.is-dragging {
+    background: var(--theme-color-light-9);
+    border-color: var(--theme-color);
+  }
+
+  &.has-files {
+    padding: 24px;
+    border: none;
+    background: transparent;
+  }
+}
+
+/* ==================== 文件网格 ==================== */
+.file-grid-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.file-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+/* ==================== 文件卡片 ==================== */
+.file-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 90px;
+  padding: 16px 8px;
+  text-align: center;
+  background: var(--el-fill-color-lighter);
+  border-radius: 8px;
+  transition: background 0.2s;
+
+  &:hover {
+    background: var(--el-fill-color);
+
+    .file-card-close {
+      opacity: 1;
+    }
+  }
+
+  &.image-card {
+    width: 120px;
+  }
+}
+
+.file-card-close {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  font-size: 12px;
+  color: #fff;
+  cursor: pointer;
+  background: var(--el-color-danger);
+  border-radius: 50%;
+  opacity: 0;
+  transition: opacity 0.2s;
+
+  &:hover {
+    background: var(--el-color-danger-dark-2);
+  }
+}
+
+.file-card-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+
+.file-card-preview {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 60px;
+  margin-bottom: 8px;
+  overflow: hidden;
+  border-radius: 4px;
+
+  img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+  }
+}
+
+.file-card-name {
+  width: 100%;
+  margin: 0;
+  overflow: hidden;
+  font-size: 12px;
+  color: var(--el-text-color-regular);
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.file-card-size {
+  margin: 4px 0 0;
+  font-size: 11px;
+  color: var(--el-text-color-secondary);
+}
+
+/* ==================== 添加文件卡片 ==================== */
+.add-card-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.add-card {
+  cursor: pointer;
+  border: 2px dashed var(--el-border-color);
+  background: transparent;
+  transition: all 0.2s;
+
+  &:hover {
+    border-color: var(--theme-color);
+    background: var(--theme-color-light-9);
+  }
+}
+
+/* ==================== 文件操作按钮 ==================== */
+.file-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 16px;
+}
+
+/* ==================== 结果文件卡片 ==================== */
+.result-file-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 30px;
+  margin-bottom: 16px;
+  background: var(--el-fill-color-lighter);
+  border-radius: 12px;
+}
+
+.result-file-name {
+  margin: 12px 0 0;
+  font-size: 14px;
+  color: var(--el-text-color-regular);
+}
+
+/* ==================== 动画 ==================== */
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ==================== 工具头部 ==================== */
+.tool-header {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.tool-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--el-text-color-primary);
+}
+
+/* ==================== 选项面板 ==================== */
+.options-panel {
+  width: 100%;
+  max-width: 600px;
+  padding: 20px;
+  margin: 16px 0;
+  background: var(--el-fill-color-lighter);
+  border-radius: 8px;
+}
+
+.options-title {
+  margin: 0 0 16px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--el-text-color-primary);
+}
+
+/* ==================== 滑块容器 ==================== */
+.slider-container {
+  width: 100%;
+}
+
+/* ==================== 压缩选项 ==================== */
+.compress-options {
+  margin-bottom: 20px;
+}
+
+.level-selector {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+}
+
+/* ==================== 用户偏好提示 ==================== */
+.preference-hint {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  margin-top: 8px;
+}
+
+/* ==================== 工具辅助类 ==================== */
+.flex-c {
+  display: flex;
+  align-items: center;
+}
+
+.flex-cc {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

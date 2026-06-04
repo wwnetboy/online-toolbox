@@ -1,0 +1,12 @@
+node_modules
+.DS_Store
+dist
+dist-ssr
+*.local
+.cursorrules
+.trae
+.kiro
+*.log
+.env
+*.zip
+uploads/
