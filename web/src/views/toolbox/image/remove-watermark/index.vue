@@ -1026,13 +1026,18 @@
       // 获取当前画布上显示的图片数据
       const currentImageData = imageCtx.getImageData(0, 0, width, height)
 
-      // 验证数据有效性（检查 alpha 通道）
+      // 验证数据有效性 - 多点采样（避免透明PNG左上角无内容导致误判）
+      const sampleRegions = getSampleRegions(width, height)
       let hasValidData = false
-      for (let i = 3; i < Math.min(4000, currentImageData.data.length); i += 4) {
-        if (currentImageData.data[i] > 0) {
-          hasValidData = true
-          break
+      for (const region of sampleRegions) {
+        const sampleData = imageCtx.getImageData(region.x, region.y, region.w, region.h)
+        for (let i = 3; i < sampleData.data.length; i += 4) {
+          if (sampleData.data[i] > 0) {
+            hasValidData = true
+            break
+          }
         }
+        if (hasValidData) break
       }
 
       if (!hasValidData) {
@@ -1112,9 +1117,21 @@
         tempCtx.putImageData(result, 0, 0)
         imageCtx.drawImage(tempCanvas, 0, 0)
 
-        // 验证结果不是全黑
-        const verification = imageCtx.getImageData(0, 0, Math.min(10, result.width), Math.min(10, result.height))
-        const hasColor = Array.from(verification.data.slice(0, 20)).some((v, i) => (i + 1) % 4 !== 0 && v > 0)
+        // 验证结果不是全黑（多点采样，跳过透明区域）
+        let hasColor = false
+        for (const region of getSampleRegions(result.width, result.height)) {
+          const sampleData = imageCtx.getImageData(region.x, region.y, region.w, region.h)
+          for (let i = 0; i < sampleData.data.length; i += 4) {
+            // 跳过透明像素（预乘 Alpha 下透明像素 RGB 均为 0）
+            if (sampleData.data[i + 3] === 0) continue
+            // 检查非透明像素是否有颜色
+            if (sampleData.data[i] > 0 || sampleData.data[i + 1] > 0 || sampleData.data[i + 2] > 0) {
+              hasColor = true
+              break
+            }
+          }
+          if (hasColor) break
+        }
 
         if (!hasColor) {
           throw new Error('处理结果异常：图像为全黑')
@@ -1408,6 +1425,22 @@
       clearTimeout(autoProcessTimer)
       autoProcessTimer = null
     }
+  }
+
+  /**
+   * 获取多个采样区域（四角 + 中心），用于避免透明 PNG 单点采样误判
+   * 每个区域取 10x10 像素
+   */
+  const getSampleRegions = (width: number, height: number) => {
+    const s = Math.min(10, width, height)
+    const regions = [
+      { x: 0, y: 0, w: s, h: s },                                           // 左上
+      { x: Math.max(0, width - s), y: 0, w: s, h: s },                      // 右上
+      { x: 0, y: Math.max(0, height - s), w: s, h: s },                     // 左下
+      { x: Math.max(0, width - s), y: Math.max(0, height - s), w: s, h: s }, // 右下
+      { x: Math.max(0, Math.floor((width - s) / 2)), y: Math.max(0, Math.floor((height - s) / 2)), w: s, h: s }, // 中心
+    ]
+    return regions
   }
 
   const cloneImageData = (imageData: ImageData): ImageData => {

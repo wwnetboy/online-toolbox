@@ -45,10 +45,12 @@
   import ArtButtonTable from '@/components/core/forms/art-button-table/index.vue'
   import { useTable } from '@/hooks/core/useTable'
   import { fetchGetUserList } from '@/api/system-manage'
+  import request from '@/utils/http'
   import UserSearch from './modules/user-search.vue'
   import UserDialog from './modules/user-dialog.vue'
-  import { ElTag, ElMessageBox, ElImage } from 'element-plus'
+  import { ElTag, ElMessageBox } from 'element-plus'
   import { DialogType } from '@/types'
+  import defaultAvatarImg from '@/assets/images/avatar/login-default-avatar.png'
 
   defineOptions({ name: 'User' })
 
@@ -84,8 +86,8 @@
     unknown: '未知'
   } as const
 
-  // 默认头像
-  const DEFAULT_AVATAR = 'https://api.dicebear.com/7.x/avataaars/svg?seed=default'
+  // 默认头像 - 使用本地图片，避免依赖外部 API
+  const DEFAULT_AVATAR = defaultAvatarImg
 
   /**
    * 获取用户状态配置
@@ -117,7 +119,8 @@
     resetSearchParams,
     handleSizeChange,
     handleCurrentChange,
-    refreshData
+    refreshData,
+    refreshRemove
   } = useTable({
     // 核心配置
     core: {
@@ -141,14 +144,18 @@
           width: 80,
           align: 'center',
           formatter: (row) => {
-            const avatarUrl = row.avatar || DEFAULT_AVATAR
-            return h(ElImage, {
-              class: 'size-10 rounded-md',
-              src: avatarUrl,
-              previewSrcList: [avatarUrl],
-              previewTeleported: true,
-              fit: 'cover'
-            })
+            return h('div', { class: 'flex justify-center' }, [
+              h('img', {
+                class: 'size-10 rounded-md object-cover',
+                src: row.avatar || DEFAULT_AVATAR,
+                onError: (e: Event) => {
+                  const img = e.target as HTMLImageElement
+                  if (img.src !== DEFAULT_AVATAR) {
+                    img.src = DEFAULT_AVATAR
+                  }
+                }
+              })
+            ])
           }
         },
         {
@@ -281,7 +288,6 @@
    * 删除用户
    */
   const deleteUser = (row: UserListItem): void => {
-    console.log('删除用户:', row)
     ElMessageBox.confirm(`确定要删除用户 "${row.userName}" 吗？`, '删除用户', {
       confirmButtonText: '确定',
       cancelButtonText: '取消',
@@ -289,12 +295,14 @@
     })
       .then(async () => {
         try {
-          await import('@/utils/http').then(({ default: request }) =>
-            request.delete({ url: `/api/user/${row.id}` })
-          )
+          const res = await request.del({ url: `/user/${row.id}` })
+          console.log('[删除用户] API响应:', res)
+          console.log('[删除用户] 用户ID:', row.id, '用户名:', row.userName)
           ElMessage.success('删除成功')
-          getData()
+          await refreshRemove()
+          console.log('[删除用户] 刷新后的数据条数:', data.value.length)
         } catch (error: any) {
+          console.error('[删除用户] 错误:', error)
           ElMessage.error(error.message || '删除失败')
         }
       })

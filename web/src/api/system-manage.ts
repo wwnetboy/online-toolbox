@@ -36,7 +36,7 @@ export function fetchUpdateRole(id: number, data: any) {
 
 // 删除角色
 export function fetchDeleteRole(id: number) {
-  return request.delete({ url: `/role/${id}` })
+  return request.del({ url: `/role/${id}` })
 }
 
 // 获取角色权限
@@ -61,5 +61,5 @@ export function fetchUpdateMenu(id: number, data: any) {
 
 // 删除菜单
 export function fetchDeleteMenu(id: number) {
-  return request.delete({ url: `/menu/${id}` })
+  return request.del({ url: `/menu/${id}` })
 }

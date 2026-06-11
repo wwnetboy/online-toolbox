@@ -67,24 +67,6 @@ const logger = winston.createLogger({
     combinedRotateTransport,
     errorRotateTransport,
   ],
-  // Handle uncaught exceptions
-  exceptionHandlers: [
-    new DailyRotateFile({
-      filename: path.join(logDir, 'exceptions-%DATE%.log'),
-      datePattern: 'YYYY-MM-DD',
-      maxSize: '20m',
-      maxFiles: '30d',
-    }),
-  ],
-  // Handle unhandled promise rejections
-  rejectionHandlers: [
-    new DailyRotateFile({
-      filename: path.join(logDir, 'rejections-%DATE%.log'),
-      datePattern: 'YYYY-MM-DD',
-      maxSize: '20m',
-      maxFiles: '30d',
-    }),
-  ],
 });
 
 // Add console transport in development

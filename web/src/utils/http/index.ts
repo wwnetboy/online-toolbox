@@ -123,6 +123,7 @@ function silentClearAuth() {
   const userStore = useUserStore()
   userStore.setLoginStatus(false)
   userStore.setToken('')
+  userStore.clearUserInfo()
 }
 
 /** 重置401防抖状态 */

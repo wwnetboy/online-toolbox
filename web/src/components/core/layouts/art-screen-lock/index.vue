@@ -111,6 +111,7 @@
   import type { FormInstance, FormRules } from 'element-plus'
   import { useI18n } from 'vue-i18n'
   import CryptoJS from 'crypto-js'
+  import defaultAvatarImg from '@/assets/images/avatar/login-default-avatar.png'
   import { useUserStore } from '@/store/modules/user'
   import { mittBus } from '@/utils/sys'
 
@@ -124,8 +125,8 @@
   const userStore = useUserStore()
   const { info: userInfo, lockPassword, isLock } = storeToRefs(userStore)
 
-  // 默认头像
-  const defaultAvatar = 'https://api.dicebear.com/7.x/avataaars/svg?seed=default'
+  // 默认头像 - 使用本地图片，避免依赖外部 API
+  const defaultAvatar = defaultAvatarImg
 
   // 用户头像
   const userAvatar = computed(() => {

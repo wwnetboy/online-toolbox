@@ -297,7 +297,7 @@ class UserService {
    */
   static async deleteUser(id, deletedBy = null) {
     const user = await User.findOne({
-      where: { id, deletedAt: null },
+      where: { id },
     });
 
     if (!user) {
@@ -308,11 +308,16 @@ class UserService {
       };
     }
 
-    // Soft delete by setting deletedAt
-    await user.update({
-      deletedAt: new Date(),
-      updatedBy: deletedBy,
-    });
+    // 使用 Sequelize paranoid 模式的 destroy() 进行软删除
+    await user.destroy();
+
+    // 记录操作人
+    if (deletedBy) {
+      await User.update(
+        { updatedBy: deletedBy },
+        { where: { id }, paranoid: false }
+      );
+    }
 
     return {
       success: true,
@@ -327,23 +332,17 @@ class UserService {
    * @returns {Promise<Object>} Delete result
    */
   static async batchDeleteUsers(ids, deletedBy = null) {
-    const result = await User.update(
-      {
-        deletedAt: new Date(),
-        updatedBy: deletedBy,
+    // 使用 Sequelize paranoid 模式的 destroy() 进行软删除
+    const result = await User.destroy({
+      where: {
+        id: ids,
       },
-      {
-        where: {
-          id: ids,
-          deletedAt: null,
-        },
-      }
-    );
+    });
 
     return {
       success: true,
-      message: `成功删除 ${result[0]} 个用户`,
-      data: { deletedCount: result[0] },
+      message: `成功删除 ${result} 个用户`,
+      data: { deletedCount: result },
     };
   }
 

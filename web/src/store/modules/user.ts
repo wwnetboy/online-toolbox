@@ -83,6 +83,13 @@ export const useUserStore = defineStore(
     }
 
     /**
+     * 清空用户信息
+     */
+    const clearUserInfo = () => {
+      info.value = {}
+    }
+
+    /**
      * 设置登录状态
      * @param status 登录状态
      */
@@ -227,6 +234,7 @@ export const useUserStore = defineStore(
       getSettingState,
       getWorktabState,
       setUserInfo,
+      clearUserInfo,
       setLoginStatus,
       setLanguage,
       setSearchHistory,

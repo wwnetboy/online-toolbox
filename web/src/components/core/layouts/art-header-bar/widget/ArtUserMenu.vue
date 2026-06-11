@@ -14,7 +14,7 @@
     <template #reference>
       <img
         class="size-8.5 mr-5 c-p rounded-full max-sm:w-6.5 max-sm:h-6.5 max-sm:mr-[16px]"
-        :src="userInfo.avatar || defaultAvatar"
+        :src="(userStore.isLogin && userInfo.avatar) || defaultAvatar"
         alt="avatar"
       />
     </template>

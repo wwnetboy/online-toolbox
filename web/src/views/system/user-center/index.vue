@@ -159,6 +159,7 @@
   import { useUserStore } from '@/store/modules/user'
   import type { FormInstance, FormRules } from 'element-plus'
   import { ElMessage } from 'element-plus'
+  import defaultAvatarImg from '@/assets/images/avatar/login-default-avatar.png'
   import {
     fetchCurrentUserInfo,
     updateUserProfile,
@@ -179,7 +180,7 @@
   const date = ref('')
   const ruleFormRef = ref<FormInstance>()
   const avatarInputRef = ref<HTMLInputElement>()
-  const defaultAvatar = 'https://api.dicebear.com/7.x/avataaars/svg?seed=default'
+  const defaultAvatar = defaultAvatarImg
   const originalForm = ref<any>({})
 
   /**
@@ -297,13 +298,12 @@
     try {
       uploading.value = true
       const response: any = await uploadAvatar(file)
-      const avatarUrl = response.data?.url || response.url
+      const avatarUrl = response.url
       if (avatarUrl) {
         await updateUserProfile({ avatar: avatarUrl })
 
         // 更新userStore中的用户信息
-        const userResponse: any = await fetchCurrentUserInfo()
-        const userData = userResponse.data || userResponse
+        const userData: any = await fetchCurrentUserInfo()
         userStore.setUserInfo(userData)
 
         ElMessage.success('头像上传成功')
